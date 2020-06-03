@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require "test_helper"
+require 'test_helper'
+require 'logger'
+require 'stringio'
 
-class PrometheusExporterTest < Minitest::Test
+class PrometheusExporterClientTest < Minitest::Test
   def test_find_the_correct_registered_metric
     client = PrometheusExporter::Client.new
 
@@ -50,5 +52,18 @@ class PrometheusExporterTest < Minitest::Test
     expected_quantiles = { quantiles: [0.99, 9] }
     summary_metric = client.register(:summary, 'summary_metric', 'helping', expected_quantiles)
     assert_equal(expected_quantiles, summary_metric.standard_values('value', 'key')[:opts])
+  end
+
+  def test_error_logging
+    log_stream = StringIO.new
+    logger = Logger.new(log_stream)
+    client = PrometheusExporter::Client.new(max_queue_size: 1)
+
+    PrometheusExporter.logger = logger
+
+    client.send('x')
+    client.send('x')
+
+    assert_match('ERROR -- : Prometheus Exporter client is dropping message cause queue is full', log_stream.string)
   end
 end

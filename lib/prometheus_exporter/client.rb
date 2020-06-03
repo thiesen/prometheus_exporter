@@ -114,7 +114,7 @@ module PrometheusExporter
     def send(str)
       @queue << str
       if @queue.length > @max_queue_size
-        STDERR.puts "Prometheus Exporter client is dropping message cause queue is full"
+        PrometheusExporter.logger.error "Prometheus Exporter client is dropping message cause queue is full"
         @queue.pop
       end
 
@@ -132,7 +132,7 @@ module PrometheusExporter
           @socket.write(message)
           @socket.write("\r\n")
         rescue => e
-          STDERR.puts "Prometheus Exporter is dropping a message: #{e}"
+          PrometheusExporter.logger.error "Prometheus Exporter is dropping a message: #{e}"
           @socket = nil
           raise
         end
@@ -157,7 +157,7 @@ module PrometheusExporter
       close_socket_if_old!
       process_queue
     rescue => e
-      STDERR.puts "Prometheus Exporter, failed to send message #{e}"
+      PrometheusExporter.logger.error "Prometheus Exporter, failed to send message #{e}"
     end
 
     def ensure_worker_thread!

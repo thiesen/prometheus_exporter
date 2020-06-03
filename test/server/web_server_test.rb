@@ -24,10 +24,15 @@ class DemoCollector
 
 end
 
-class PrometheusExporterTest < Minitest::Test
+class PrometheusExporterWebServerTest < Minitest::Test
 
   def setup
     PrometheusExporter::Metric::Base.default_prefix = ''
+    PrometheusExporter.logger = Logger.new(IO::NULL)
+  end
+
+  def teardown
+    PrometheusExporter.logger = nil
   end
 
   def find_free_port

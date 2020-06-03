@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+require_relative "prometheus_exporter/default_logger"
 require_relative "prometheus_exporter/version"
+
 require "json"
 require "thread"
 
@@ -27,9 +29,17 @@ module PrometheusExporter
         require 'socket'
         Socket.gethostname
       rescue => e
-        STDERR.puts "Unable to lookup hostname #{e}"
+        logger.error "Unable to lookup hostname #{e}"
         "unknown-host"
       end
+  end
+
+  def self.logger=(logger)
+    @logger = logger
+  end
+
+  def self.logger
+    @logger ||= PrometheusExporter::DefaultLogger.instance
   end
 
   def self.detect_json_serializer(preferred)

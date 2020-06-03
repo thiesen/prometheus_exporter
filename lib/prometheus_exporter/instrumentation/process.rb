@@ -25,7 +25,7 @@ module PrometheusExporter::Instrumentation
             metric = process_collector.collect
             client.send_json metric
           rescue => e
-            STDERR.puts("Prometheus Exporter Failed To Collect Process Stats #{e}")
+            PrometheusExporter.logger.error("Prometheus Exporter Failed To Collect Process Stats #{e}")
           ensure
             sleep frequency
           end

@@ -9,7 +9,7 @@ module PrometheusExporter::Instrumentation
 
       # Not all rails versions support coonection pool stats
       unless ::ActiveRecord::Base.connection_pool.respond_to?(:stat)
-        STDERR.puts("ActiveRecord connection pool stats not supported in your rails version")
+        PrometheusExporter.logger.error("ActiveRecord connection pool stats not supported in your rails version")
         return
       end
 
@@ -28,7 +28,7 @@ module PrometheusExporter::Instrumentation
             metrics = active_record_collector.collect
             metrics.each { |metric| client.send_json metric }
           rescue => e
-            STDERR.puts("Prometheus Exporter Failed To Collect Process Stats #{e}")
+            PrometheusExporter.logger.error("Prometheus Exporter Failed To Collect Process Stats #{e}")
           ensure
             sleep frequency
           end
